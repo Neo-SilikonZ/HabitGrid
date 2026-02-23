@@ -243,10 +243,10 @@ export default function App() {
                           {(entry || isAutoFailed) && (
                             <div className="text-center">
                               <div className={cn(
-                                "font-mono text-xs font-bold",
+                                "font-mono text-[10px] md:text-xs font-bold",
                                 entry?.status === 'done' ? "text-emerald-700" : "text-rose-700"
                               )}>
-                                {entry ? `${entry.timeSpent}m` : '0m'}
+                                {entry ? `${entry.timeSpent}/${habit.targetTime}m` : `0/${habit.targetTime}m`}
                               </div>
                               <div className="text-[8px] uppercase opacity-40 font-mono">
                                 {entry ? Math.round((entry.timeSpent / habit.targetTime) * 100) : 0}%
@@ -331,64 +331,51 @@ export default function App() {
               </button>
             </div>
 
-            <div className="space-y-8">
-              <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={() => {
-                    const habit = habits.find(h => h.id === editingEntry.habitId);
-                    const notes = (document.getElementById('entry-notes') as HTMLTextAreaElement)?.value;
-                    updateEntry(editingEntry.habitId, editingEntry.date, 'done', habit?.targetTime || 0, notes);
-                  }}
-                  className="flex flex-col items-center gap-3 border border-[#141414] p-6 hover:bg-emerald-500/10 transition-colors group"
-                >
-                  <Check className="text-emerald-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-mono text-[10px] uppercase">Mark Done</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    const notes = (document.getElementById('entry-notes') as HTMLTextAreaElement)?.value;
-                    updateEntry(editingEntry.habitId, editingEntry.date, 'failed', 0, notes);
-                  }}
-                  className="flex flex-col items-center gap-3 border border-[#141414] p-6 hover:bg-rose-500/10 transition-colors group"
-                >
-                  <X className="text-rose-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-mono text-[10px] uppercase">Mark Failed</span>
-                </button>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-[10px] uppercase font-serif italic opacity-50 mb-2">Time Spent (Minutes)</label>
+                <input 
+                  type="number"
+                  id="custom-time"
+                  inputMode="numeric"
+                  defaultValue={getEntry(editingEntry.habitId, editingEntry.date)?.timeSpent ?? habits.find(h => h.id === editingEntry.habitId)?.targetTime ?? 0}
+                  className="w-full bg-transparent border-b border-[#141414] py-2 font-mono text-3xl focus:outline-none"
+                />
               </div>
 
-              <div className="border-t border-[#141414] pt-6">
+              <div>
                 <label className="block text-[10px] uppercase font-serif italic opacity-50 mb-2">Journal / Session Notes</label>
                 <textarea 
                   id="entry-notes"
                   placeholder="What did you accomplish? Any obstacles?"
                   defaultValue={getEntry(editingEntry.habitId, editingEntry.date)?.notes || ''}
-                  className="w-full bg-transparent border border-[#141414]/20 p-3 font-mono text-xs focus:outline-none focus:border-[#141414] min-h-[100px] resize-none"
+                  className="w-full bg-transparent border border-[#141414]/20 p-3 font-mono text-xs focus:outline-none focus:border-[#141414] min-h-[80px] resize-none"
                 />
               </div>
 
-              <div className="border-t border-[#141414] pt-6">
-                <label className="block text-[10px] uppercase font-serif italic opacity-50 mb-4">Custom Time Log (Minutes)</label>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <input 
-                    type="number"
-                    id="custom-time"
-                    inputMode="numeric"
-                    defaultValue={getEntry(editingEntry.habitId, editingEntry.date)?.timeSpent || 0}
-                    className="flex-1 bg-transparent border-b border-[#141414] py-3 font-mono text-3xl focus:outline-none"
-                  />
-                  <button 
-                    onClick={() => {
-                      const val = parseInt((document.getElementById('custom-time') as HTMLInputElement).value);
-                      const notes = (document.getElementById('entry-notes') as HTMLTextAreaElement)?.value;
-                      const habit = habits.find(h => h.id === editingEntry.habitId);
-                      const status = val >= (habit?.targetTime || 0) ? 'done' : 'failed';
-                      updateEntry(editingEntry.habitId, editingEntry.date, status, val, notes);
-                    }}
-                    className="bg-[#141414] text-[#E4E3E0] py-4 px-6 font-mono text-xs uppercase active:opacity-80"
-                  >
-                    Log Time
-                  </button>
-                </div>
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                <button 
+                  onClick={() => {
+                    const val = parseInt((document.getElementById('custom-time') as HTMLInputElement).value) || 0;
+                    const notes = (document.getElementById('entry-notes') as HTMLTextAreaElement)?.value;
+                    updateEntry(editingEntry.habitId, editingEntry.date, 'done', val, notes);
+                  }}
+                  className="flex flex-col items-center gap-3 border border-[#141414] p-6 bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors group"
+                >
+                  <Check className="text-emerald-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-mono text-[10px] uppercase">Complete Session</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    const val = parseInt((document.getElementById('custom-time') as HTMLInputElement).value) || 0;
+                    const notes = (document.getElementById('entry-notes') as HTMLTextAreaElement)?.value;
+                    updateEntry(editingEntry.habitId, editingEntry.date, 'failed', val, notes);
+                  }}
+                  className="flex flex-col items-center gap-3 border border-[#141414] p-6 bg-rose-500/5 hover:bg-rose-500/10 transition-colors group"
+                >
+                  <X className="text-rose-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-mono text-[10px] uppercase">Failed Session</span>
+                </button>
               </div>
             </div>
           </div>
