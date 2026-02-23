@@ -1,0 +1,5 @@
+{
+  "name": "HabitGrid",
+  "description": "A minimalistic, spreadsheet-style habit tracker with time accountability and progress visualization.",
+  "requestFramePermissions": []
+}
